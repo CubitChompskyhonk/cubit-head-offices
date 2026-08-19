@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b0d12" />
+  <title>Cubit Head Offices</title>
+  <style>
+    :root {
+      --bg: #0b0d12; --panel: #12151c; --card: #181c25; --border: #2a3040;
+      --text: #eef1f7; --muted: #8b93a7; --accent: #4f8cff; --accent-dim: #2a4a8a;
+      --green: #3dd68c; --yellow: #f5c542; --red: #ff5c5c; --purple: #a78bfa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+      background: var(--bg); color: var(--text); height: 100dvh;
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    header {
+      background: linear-gradient(180deg, #141820, var(--panel));
+      border-bottom: 1px solid var(--border); padding: 12px 18px;
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark {
+      width: 28px; height: 28px; background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 7px; display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 13px;
+    }
+    header h1 { font-size: 15px; font-weight: 650; }
+    .status-bar { display: flex; gap: 16px; font-size: 12px; color: var(--muted); }
+    .status-bar strong { color: var(--green); font-weight: 600; }
+    .main { flex: 1; display: grid; grid-template-columns: 1fr 360px; overflow: hidden; }
+    @media (max-width: 860px) {
+      .main { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .side.mobile-open { display: flex; position: absolute; inset: 0; z-index: 20; }
+    }
+    .office {
+      padding: 20px; overflow-y: auto;
+      background: radial-gradient(ellipse at 15% 20%, #151a24 0%, transparent 50%),
+                  radial-gradient(ellipse at 85% 80%, #12161f 0%, transparent 45%), var(--bg);
+    }
+    .wing { margin-bottom: 26px; }
+    .wing-title {
+      font-size: 10px; text-transform: uppercase; letter-spacing: 1.8px;
+      color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .wing-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+    .desks { display: flex; flex-wrap: wrap; gap: 12px; }
+    .desk {
+      width: 168px; background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 13px; cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.2, 0.8, 0.2, 1); position: relative; user-select: none;
+    }
+    .desk:hover { border-color: var(--accent-dim); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+    .desk.selected { border-color: var(--accent); background: #1c2230; box-shadow: 0 0 0 1px var(--accent), 0 8px 24px rgba(79,140,255,0.15); }
+    .desk .avatar {
+      width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #2a3548, #1e2636);
+      display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700;
+      margin-bottom: 10px; color: var(--accent);
+    }
+    .desk .id { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+    .desk .name { font-size: 13.5px; font-weight: 600; margin-bottom: 2px; }
+    .desk .role { font-size: 11px; color: var(--muted); line-height: 1.3; }
+    .desk .status-dot {
+      position: absolute; top: 14px; right: 14px; width: 8px; height: 8px;
+      border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green);
+    }
+    .side { background: var(--panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+    .side-header {
+      padding: 14px 16px; border-bottom: 1px solid var(--border); font-size: 12px; font-weight: 600;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .dialogue { flex: 1; overflow-y: auto; padding: 16px; font-size: 13px; line-height: 1.55; }
+    .msg { margin-bottom: 16px; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .msg .who { font-weight: 600; font-size: 12px; margin-bottom: 3px; }
+    .msg.user .who { color: var(--yellow); }
+    .msg.employee .who { color: var(--accent); }
+    .msg.system .who { color: var(--muted); }
+    .command-area { border-top: 1px solid var(--border); background: #0e1117; padding: 12px; }
+    .hint { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .command-bar { display: flex; gap: 8px; }
+    .command-bar input {
+      flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px 13px; color: var(--text); font-size: 13px; outline: none;
+    }
+    .command-bar input:focus { border-color: var(--accent); }
+    .command-bar button {
+      background: var(--accent); color: white; border: none; border-radius: 8px;
+      padding: 0 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .mobile-toggle {
+      display: none; position: fixed; bottom: 20px; right: 20px; width: 52px; height: 52px;
+      border-radius: 50%; background: var(--accent); border: none; color: white; font-size: 20px;
+      box-shadow: 0 4px 20px rgba(79,140,255,0.4); z-index: 30; cursor: pointer;
+    }
+    @media (max-width: 860px) { .mobile-toggle { display: flex; align-items: center; justify-content: center; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <div class="logo-mark">C</div>
+      <h1>CUBIT HEAD OFFICES</h1>
+    </div>
+    <div class="status-bar">
+      <div>Runway <strong>$3.57</strong></div>
+      <div>Project <strong>Boardroom</strong></div>
+      <div>Staff <strong>7</strong></div>
+    </div>
+  </header>
+  <div class="main">
+    <div class="office">
+      <div class="wing">
+        <div class="wing-title">Executive Wing</div>
+        <div class="desks">
+          <div class="desk" data-id="CSI-001"><div class="status-dot"></div><div class="avatar">S</div><div class="id">CSI-001</div><div class="name">Secretary</div><div class="role">Runtime Bridge</div></div>
+          <div class="desk" data-id="CSI-002"><div class="status-dot"></div><div class="avatar">AR</div><div class="id">CSI-002</div><div class="name">Alex Rivera</div><div class="role">Chief of Staff</div></div>
+        </div>
+      </div>
+      <div class="wing">
+        <div class="wing-title">Finance & Compliance</div>
+        <div class="desks">
+          <div class="desk" data-id="CSI-003"><div class="status-dot"></div><div class="avatar">JH</div><div class="id">CSI-003</div><div class="name">Jordan Hale</div><div class="role">Finance Officer</div></div>
+          <div class="desk" data-id="CSI-004"><div class="status-dot"></div><div class="avatar">PS</div><div class="id">CSI-004</div><div class="name">Priya Singh</div><div class="role">Tax & Compliance</div></div>
+        </div>
+      </div>
+      <div class="wing">
+        <div class="wing-title">Operations</div>
+        <div class="desks">
+          <div class="desk" data-id="CSI-005"><div class="status-dot"></div><div class="avatar">SO</div><div class="id">CSI-005</div><div class="name">Sam Ortega</div><div class="role">Procurement</div></div>
+        </div>
+      </div>
+      <div class="wing">
+        <div class="wing-title">Knowledge & Engineering</div>
+        <div class="desks">
+          <div class="desk" data-id="CSI-006"><div class="status-dot"></div><div class="avatar">TK</div><div class="id">CSI-006</div><div class="name">Taylor Kim</div><div class="role">Knowledge Manager</div></div>
+          <div class="desk" data-id="CSI-007"><div class="status-dot"></div><div class="avatar">ME</div><div class="id">CSI-007</div><div class="name">Morgan Ellis</div><div class="role">Software Engineer</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="side" id="side">
+      <div class="side-header"><span>Dialogue</span><span style="font-size:11px;color:var(--muted)" id="selected-label">No one selected</span></div>
+      <div class="dialogue" id="dialogue">
+        <div class="msg system"><div class="who">System</div><div class="text">Head Offices online. Click an employee or type a directive. Commands route to the corresponding skill.</div></div>
+      </div>
+      <div class="command-area">
+        <div class="hint">Try: “Alex, company pulse” · “Jordan, runway” · “Secretary, barriers?”</div>
+        <div class="command-bar">
+          <input type="text" id="cmd" placeholder="Type directive..." autocomplete="off" />
+          <button onclick="sendCommand()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button class="mobile-toggle" onclick="toggleSide()">💬</button>
+  <script>
+    const employees = {
+      "CSI-001": { name: "Secretary", responses: { default: ["Boundary is clear. No external actions pending.", "Monitoring all exits from the VRE.", "Ready to surface any permission requirements."], barrier: ["I will flag any action that leaves Head Offices.", "Permission gate is active."] }},
+      "CSI-002": { name: "Alex Rivera", responses: { default: ["Company pulse: Cubit OS live. Runway $3.57. Focus on first revenue.", "Recommend controlled outreach next. Payment framework verified.", "High agency mode engaged."], pulse: ["Product live, payment live, runway $3.57, milestone policy locked."], next: ["Next best action is outreach. The machine is ready."] }},
+      "CSI-003": { name: "Jordan Hale", responses: { default: ["Runway $3.57. No API top-ups until first revenue.", "Both payment links are live in Stripe.", "Books clean. Awaiting first $47."], runway: ["Confirmed $3.57 remaining. Milestone policy active."] }},
+      "CSI-004": { name: "Priya Singh", responses: { default: ["No compliance issues. Will map lightest path once revenue arrives.", "Structure remains clean."] }},
+      "CSI-005": { name: "Sam Ortega", responses: { default: ["No purchases required. Operating at near-zero cost.", "Standing by until revenue justifies spend."] }},
+      "CSI-006": { name: "Taylor Kim", responses: { default: ["Knowledge layer ready. Can assemble delivery package on first sale.", "Single source of truth maintained."], package: ["Delivery package ready from existing materials."] }},
+      "CSI-007": { name: "Morgan Ellis", responses: { default: ["Payment links and structure solid. Technical side stable.", "Can improve this UI or build delivery automation on request."], ui: ["This is a PWA-ready web app. Native packaging is possible."] }}
+    };
+    let selectedId = null;
+    document.querySelectorAll('.desk').forEach(desk => {
+      desk.addEventListener('click', () => {
+        document.querySelectorAll('.desk').forEach(d => d.classList.remove('selected'));
+        desk.classList.add('selected');
+        selectedId = desk.dataset.id;
+        const emp = employees[selectedId];
+        document.getElementById('selected-label').textContent = emp.name;
+        document.getElementById('cmd').placeholder = `Directive for ${emp.name}...`;
+        speak(selectedId, 'default');
+        document.getElementById('cmd').focus();
+      });
+    });
+    function addMessage(who, text, type = 'employee') {
+      const d = document.getElementById('dialogue');
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      div.innerHTML = `<div class="who">${who}</div><div class="text">${text}</div>`;
+      d.appendChild(div);
+      d.scrollTop = d.scrollHeight;
+    }
+    function speak(id, cat = 'default') {
+      const emp = employees[id];
+      if (!emp) return;
+      const pool = emp.responses[cat] || emp.responses.default;
+      addMessage(emp.name, pool[Math.floor(Math.random() * pool.length)]);
+    }
+    function routeCommand(text) {
+      const lower = text.toLowerCase();
+      let target = selectedId;
+      if (lower.includes('secretary') || lower.includes('csi-001')) target = 'CSI-001';
+      else if (lower.includes('alex') || lower.includes('chief') || lower.includes('csi-002')) target = 'CSI-002';
+      else if (lower.includes('jordan') || lower.includes('finance') || lower.includes('csi-003')) target = 'CSI-003';
+      else if (lower.includes('priya') || lower.includes('tax') || lower.includes('csi-004')) target = 'CSI-004';
+      else if (lower.includes('sam') || lower.includes('procurement') || lower.includes('csi-005')) target = 'CSI-005';
+      else if (lower.includes('taylor') || lower.includes('knowledge') || lower.includes('csi-006')) target = 'CSI-006';
+      else if (lower.includes('morgan') || lower.includes('engineer') || lower.includes('csi-007')) target = 'CSI-007';
+      let cat = 'default';
+      if (lower.includes('pulse') || lower.includes('status')) cat = 'pulse';
+      if (lower.includes('runway') || lower.includes('money')) cat = 'runway';
+      if (lower.includes('barrier') || lower.includes('permission')) cat = 'barrier';
+      if (lower.includes('package') || lower.includes('deliver')) cat = 'package';
+      if (lower.includes('next')) cat = 'next';
+      if (lower.includes('ui') || lower.includes('interface')) cat = 'ui';
+      if (target && employees[target]) {
+        document.querySelectorAll('.desk').forEach(d => d.classList.remove('selected'));
+        const desk = document.querySelector(`.desk[data-id="${target}"]`);
+        if (desk) desk.classList.add('selected');
+        selectedId = target;
+        document.getElementById('selected-label').textContent = employees[target].name;
+        setTimeout(() => speak(target, cat), 350);
+      } else {
+        setTimeout(() => addMessage("System", "No clear employee matched. Click a desk or use a name.", "system"), 300);
+      }
+    }
+    function sendCommand() {
+      const input = document.getElementById('cmd');
+      const text = input.value.trim();
+      if (!text) return;
+      addMessage("You", text, "user");
+      input.value = '';
+      routeCommand(text);
+    }
+    document.getElementById('cmd').addEventListener('keydown', e => { if (e.key === 'Enter') sendCommand(); });
+    function toggleSide() { document.getElementById('side').classList.toggle('mobile-open'); }
+  </script>
+</body>
+</html>
