@@ -1,10 +1,11 @@
 {
   "name": "Cubit Head Offices",
   "short_name": "Cubit HQ",
-  "description": "Interactive Virtual Runtime Environment for Cubit Systems Inc.",
+  "description": "Interactive Virtual Company Interface — direct a team of AI employees in a beautiful virtual office.",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b0d12",
-  "theme_color": "#0b0d12",
-  "orientation": "any"
+  "background_color": "#0a0c10",
+  "theme_color": "#0a0c10",
+  "orientation": "any",
+  "categories": ["business", "productivity", "utilities"]
 }
